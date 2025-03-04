@@ -99,6 +99,9 @@ var (
 		24: newMetric("state", "Device state. 1 is probably good and 0 is probably bad", prometheus.GaugeValue, nil, nil, "DeviceState", false),
 		25: newMetric("cachemode", "Device cachemode", prometheus.CounterValue, nil, []string{"cachemode"}, "CacheMode", true),
 		26: newMetric("scsi_lun", "Device scsi lun. Unknown values", prometheus.GaugeValue, nil, []string{"scsi_lun"}, "ScsiLun", true),
+		27: newMetric("cache_size_mb", "Cache size in MB", prometheus.GaugeValue, nil, []string{"cache_size_mb"}, "CacheSizeMB", true),
+		28: newMetric("l1_cache_percentage_of_usage", "Usage percent of L1 cache", prometheus.GaugeValue, nil, []string{"l1_cache_percentage_of_usage"}, "L1CachePercentOfUsage", true),
+		29: newMetric("l1_cache_percentage_of_hits", "Hits percent of L1 cache", prometheus.GaugeValue, nil, []string{"l1_cache_percentage_of_hits"}, "L1CachePercentOfHits", true),
 	}
 
 	haMetrics = metrics{
@@ -358,7 +361,7 @@ func fetchTCP(uri string, timeout time.Duration, server *Server) (func() (*Devic
 		scanner := bufio.NewScanner(conn)
 
 		// Send protocolversion 100
-		if _, err := fmt.Fprintf(conn, "%s\n", "protocolversion 100"); err != nil {
+		if _, err := fmt.Fprintf(conn, "%s\n", "protocolversion 101"); err != nil {
 			return nil, err
 		}
 		if err := checkSuccess(scanner); err != nil {
