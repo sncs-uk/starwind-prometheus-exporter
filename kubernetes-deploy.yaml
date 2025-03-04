@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starwind-prometheus-exporter
+  labels:
+    app: starwind-prometheus-exporter
+    app.kubernetes.io/component: starwind-prometheus-exporter
+    app.kubernetes.io/name: starwind-prometheus-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: starwind-prometheus-exporter
+  template:
+    metadata:
+      name: starwind-prometheus-exporter
+      labels:
+        app: starwind-prometheus-exporter
+        app.kubernetes.io/component: starwind-prometheus-exporter
+        app.kubernetes.io/name: starwind-prometheus-exporter
+    spec:
+      volumes:
+        - name: config
+          secret:
+            secretName: starwind-prometheus-exporter-config
+      containers:
+        - name: starwind-prometheus-exporter
+          image: ghcr.io/sncs-uk/starwind-prometheus-exporter:latest
+          ports:
+            - name: vsa-exporter
+              containerPort: 9852
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/starwind-exporter/
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: starwind-prometheus-exporter-config
+data:
+  config.yml: >-
+    c2VydmVyczoKICAtIGhvc3Q6IGxvY2FsaG9zdDozMjYxCiAgICB1c2VybmFtZTogYmFubmFuYXMKICAgIHBhc3N3b3JkOiBzdGFyd2luZAogIC0gaG9zdDogMTI3LjAuMC4xOjMyNjEKICAgIHVzZXJuYW1lOiByb290CiAgICBwYXNzd29yZDogc3RhcndpbmQ=
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: starwind-prometheus-exporter
+  labels:
+    app: starwind-prometheus-exporter
+    app.kubernetes.io/component: starwind-prometheus-exporter
+    app.kubernetes.io/name: starwind-prometheus-exporter
+spec:
+  ports:
+    - name: vsa-exporter
+      protocol: TCP
+      port: 9852
+      targetPort: vsa-exporter
+  selector:
+    app.kubernetes.io/component: starwind-prometheus-exporter
+    app.kubernetes.io/name: starwind-prometheus-exporter
